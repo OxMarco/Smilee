@@ -11,8 +11,7 @@ contract BendTest is BaseIntegrationTest {
     BendAdapter public adapter = new BendAdapter(
         honey, // base asset
         0x30A3039675E5b5cbEA49d9a5eacbc11f9199B86D, // Bend pool address
-        0xD08391c5977ebF1a09bB5915908EF5cd95Edb7E0, // Honey aToken
-        address(0) // infrared gague
+        0xD08391c5977ebF1a09bB5915908EF5cd95Edb7E0 // Honey aToken
     );
     IERC20 public honeyToken = IERC20(honey);
 

@@ -7,7 +7,6 @@ import {IPool} from "@aave/v3-core/contracts/interfaces/IPool.sol";
 import {IPoolAddressesProvider} from "@aave/v3-core/contracts/interfaces/IPoolAddressesProvider.sol";
 import {IAToken} from "@aave/v3-core/contracts/interfaces/IAToken.sol";
 import {IAdapter} from "../interfaces/IAdapter.sol";
-import {IInfraredGauge} from "../interfaces/external/infrared/IInfraredGauge.sol";
 
 contract BendAdapter is IAdapter {
     using SafeERC20 for IERC20;
@@ -15,9 +14,8 @@ contract BendAdapter is IAdapter {
     IERC20 public immutable baseAsset;
     IPool public immutable lendingPool;
     IAToken public immutable aToken;
-    IInfraredGauge public immutable infraredGauge;
 
-    constructor(address _baseAsset, address _pool, address _aToken, address _infraredGauge) {
+    constructor(address _baseAsset, address _pool, address _aToken) {
         baseAsset = IERC20(_baseAsset);
 
         /*
@@ -29,9 +27,6 @@ contract BendAdapter is IAdapter {
 
         lendingPool = IPool(_pool);
         aToken = IAToken(_aToken);
-        infraredGauge = IInfraredGauge(_infraredGauge);
-
-        aToken.approve(_infraredGauge, type(uint256).max);
     }
 
     function kind() external pure returns (string memory) {
