@@ -15,6 +15,7 @@ contract Treasury is ERC20, Ownable {
     uint256 public lastRebalance;
 
     event Rebalanced();
+
     error InsufficientLiquidity();
 
     constructor(address _baseAsset, address _oracle) ERC20("aaa", "AAA") Ownable(msg.sender) {
@@ -22,17 +23,17 @@ contract Treasury is ERC20, Ownable {
         oracle = IOracle(_oracle);
     }
 
-    function asset() external view returns(address) {
+    function asset() external view returns (address) {
         return address(baseAsset);
     }
 
-    function mint(address to, uint amount) external {
+    function mint(address to, uint256 amount) external {
         baseAsset.safeTransferFrom(msg.sender, address(this), amount);
         _mint(to, amount);
     }
 
-    function burn(address to, uint amount) external {
-        if(baseAsset.balanceOf(address(this)) < amount) revert InsufficientLiquidity();
+    function burn(address to, uint256 amount) external {
+        if (baseAsset.balanceOf(address(this)) < amount) revert InsufficientLiquidity();
 
         _burn(msg.sender, amount);
         baseAsset.safeTransfer(to, amount);
@@ -42,20 +43,14 @@ contract Treasury is ERC20, Ownable {
         IOracle.Allocation[] memory allocations = oracle.get();
 
         uint256 length = allocations.length;
-        for(uint16 i = 0; i < length; i++) {
-            if(allocations[i].timestamp < lastRebalance) continue;
-    
-            if(allocations[i].action == IOracle.ActionType.MANAGE) {
-                (bool success,) = allocations[i].adapter.delegatecall(
-                    abi.encodeWithSelector(IAdapter.manage.selector, allocations[i].amount)
-                );
-                assert(success);
-            } else {
-                (bool success,) = allocations[i].adapter.delegatecall(
-                    abi.encodeWithSelector(IAdapter.collateralise.selector, allocations[i].amount)
-                );
-                assert(success);
-            }
+        for (uint16 i = 0; i < length; i++) {
+            if (allocations[i].timestamp < lastRebalance) continue;
+
+            // TODO should we use a delegate call or a normal call?
+            (bool success,) = allocations[i].adapter.delegatecall(
+                abi.encodeWithSelector(IAdapter.manage.selector, allocations[i].amount)
+            );
+            assert(success);
         }
         lastRebalance = block.timestamp;
 
